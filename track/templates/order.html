@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block content %}
+	<div class="content-section">
+		{% if current_user.id == w_id %}
+		<h3>You have already checked in!</h3>
+		{% else %}
+		<form method="POST" action="{{ url_for('checkin', w_id=current_user.id, o_id=o_id) }}">
+			{{ form.hidden_tag() }}
+            {{ form.submit(value='Check in', class = "btn btn-outline-secondary") }}
+		</form>
+		{% endif %}
+	</div>
+{% endblock content %}

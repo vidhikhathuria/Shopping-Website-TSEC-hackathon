@@ -1,0 +1,99 @@
+{% extends "layout.html" %}
+{% block content %}
+	<div class="content-section">
+		{{ form.hidden_tag() }}
+		<form method="POST" action="">
+			{{ form.csrf_token }}
+			<fieldset class="form-group">
+				<legend class="border-bottom mb-4">Join Today</legend>
+				<div class="form-group">
+			        {{ form.name.label(class="form-control-label") }}
+
+			        {% if form.name.errors %}
+			            {{ form.name(class="form-control form-control-lg is-invalid") }}
+			            <div class="invalid-feedback">
+			                {% for error in form.name.errors %}
+			                    <span>{{ error }}</span>
+			                {% endfor %}
+			            </div>
+			        {% else %}
+			            {{ form.name(class="form-control form-control-lg") }}
+			        {% endif %}
+			    </div>
+			    <div class="form-group">
+			        {{ form.email.label(class="form-control-label") }}
+
+			        {% if form.email.errors %}
+			            {{ form.email(class="form-control form-control-lg is-invalid") }}
+			            <div class="invalid-feedback">
+			                {% for error in form.email.errors %}
+			                    <span>{{ error }}</span>
+			                {% endfor %}
+			            </div>
+			        {% else %}
+			            {{ form.email(class="form-control form-control-lg") }}
+			        {% endif %}
+			    </div>
+			    <div class="form-group">
+			        {{ form.password.label(class="form-control-label") }}
+
+			        {% if form.password.errors %}
+			            {{ form.password(class="form-control form-control-lg is-invalid") }}
+			            <div class="invalid-feedback">
+			                {% for error in form.password.errors %}
+			                    <span>{{ error }}</span>
+			                {% endfor %}
+			            </div>
+			        {% else %}
+			            {{ form.password(class="form-control form-control-lg") }}
+			        {% endif %}
+			    </div>
+			    <div class="form-group">
+			        {{ form.confirm.label(class="form-control-label") }}
+
+			        {% if form.confirm.errors %}
+			            {{ form.confirm(class="form-control form-control-lg is-invalid") }}
+			            <div class="invalid-feedback">
+			                {% for error in form.confirm.errors %}
+			                    <span>{{ error }}</span>
+			                {% endfor %}
+			            </div>
+			        {% else %}
+			            {{ form.confirm(class="form-control form-control-lg") }}
+			        {% endif %}
+			    </div>
+			    <div class="form-group">
+			        {{ form.x.label(class="form-control-label") }}
+
+			        {% if form.x.errors %}
+			            {{ form.x(class="form-control form-control-lg is-invalid") }}
+			            <div class="invalid-feedback">
+			                {% for error in form.x.errors %}
+			                    <span>{{ error }}</span>
+			                {% endfor %}
+			            </div>
+			        {% else %}
+			            {{ form.x(class="form-control form-control-lg") }}
+			        {% endif %}
+			    </div>
+			    <div class="form-group">
+			        {{ form.y.label(class="form-control-label") }}
+
+			        {% if form.y.errors %}
+			            {{ form.y(class="form-control form-control-lg is-invalid") }}
+			            <div class="invalid-feedback">
+			                {% for error in form.y.errors %}
+			                    <span>{{ error }}</span>
+			                {% endfor %}
+			            </div>
+			        {% else %}
+			            {{ form.y(class="form-control form-control-lg") }}
+			        {% endif %}
+			    </div>
+		    </fieldset>
+		    <div class="form-group">
+	            {{ form.submit(class="btn btn-outline-info") }}
+	        </div>
+		</form>
+	</div>
+{% endblock content %}
