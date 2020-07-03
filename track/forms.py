@@ -21,5 +21,4 @@ class warehouseLoginForm(FlaskForm):
 	submit = SubmitField('Login')
 		
 class EmptyForm(FlaskForm):
-	class EmptyForm(FlaskForm):
-    submit = SubmitField('Submit')
+	submit = SubmitField('Submit')

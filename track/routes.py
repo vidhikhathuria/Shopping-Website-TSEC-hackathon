@@ -6,8 +6,8 @@ from flask_login import login_user, current_user, logout_user, login_required
 
 
 
-@app.route('/')
 @app.route('/orders')
+@login_required
 def orders():
 	orders = [
 		{
@@ -53,19 +53,21 @@ def orders():
 	]
 	return render_template('orders.html', title = 'Orders', orders=orders)
 
-@app.route('/order/<o_id>')
+@app.route('/order/<int:o_id>/<int:w_id>')
 @login_required
 def order(o_id, w_id):
-	return render_template('order.html', o_id=o_id, w_id=w_id)
+	form = EmptyForm()
+	print(type(current_user.id), type(w_id))
+	return render_template('order.html', o_id=o_id, w_id=w_id, form=form)
 
-@users.route('/checkin/<o_id>', methods=['POST'])
+@app.route('/checkin/<int:o_id>/<int:w_id>', methods=['POST'])
 @login_required
-def checkin(username):
-    form = EmptyForm()
-    if form.validate_on_submit():
-        return "working!"
-    else:
-        return "not working"
+def checkin(o_id, w_id):
+	form = EmptyForm()
+	if form.validate_on_submit():
+		return "working!"
+	else:
+		return "not working"
 
 
 @app.route('/addwarehouse', methods=['GET', 'POST'])
@@ -82,7 +84,7 @@ def addwarehouse():
 		return redirect(url_for('warehouselogin'))
 	return render_template('addwarehouse.html', form=form, title="Add Warehouse Page")
 
-
+@app.route('/', methods=['GET', 'POST'])
 @app.route('/warehouselogin', methods=['GET', 'POST'])
 def warehouselogin():
 	if current_user.is_authenticated:
