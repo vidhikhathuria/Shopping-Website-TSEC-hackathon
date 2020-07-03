@@ -10,6 +10,7 @@ class WarehouseRegistrationForm(FlaskForm):
 	    DataRequired(),
 	    EqualTo('confirm', message='Passwords must match')
 	])
+	location = StringField('Location', validators = [DataRequired()])
 	x = StringField('x-coordinate', validators=[DataRequired()])
 	y = StringField('y-coordinate', validators=[DataRequired()])
 	submit = SubmitField('Submit')

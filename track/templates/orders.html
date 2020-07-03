@@ -7,6 +7,7 @@
 		      <th scope="col">#</th>
 		      <th scope="col">Order_id</th>
 		      <th scope="col">Current WareHouse</th>
+		      <th scope="col">Status</th>
 		    </tr>
 		  </thead>
 		  {% for i in orders %}
@@ -14,11 +15,12 @@
 				    <tr>
 				      <th scope="row">{{ loop.index }}</th>
 				      <td>
-				      <a href="{{ url_for( 'order', o_id = i.o_id, w_id = i.w_id ) }}">
-				      	{{ i.o_id }}
+				      <a href="{{ url_for( 'scan', paymentID = i.paymentID, current_warehouse_id = i.current_warehouse_id ) }}">
+				      	{{ i.paymentID }}
 				      </a>
 				  	  </td>
-				      <td>{{ i.w_id }}</td>
+				      <td>{{ i.current_warehouse_id }}</td>
+				      <td>{{ i.status }}</td>
 				    </tr>
 			  </tbody>
 		   {% endfor %}

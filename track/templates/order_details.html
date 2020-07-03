@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block content %}
+	<div class="content-section">
+		<h2 class="account-heading border-bottom mb-4"> Order Number : {{ order.paymentID }} </h2>
+		<legend class="border-bottom mb-4">Delivery Address : {{ order.address }}</legend>
+		<legend class="border-bottom mb-4">Current status :
+			{% if order.status == 0 %}
+				Yet to be dispatched
+				</legend>
+			{% elif order.status == -1 %}
+				Order delivered
+				</legend>
+			{% else %}
+				In warehouse {{ order.current_warehouse_id }} </legend>
+				<legend class="border-bottom mb-4">Current Warehouse Name : {{ warehouse.name }}</legend>
+				<legend class="border-bottom mb-4">Current Warehouse Location : {{ warehouse.location }}</legend>
+				<legend class="mb-4">Current Warehouse Email : {{ warehouse.email }}</legend>
+			{% endif %}
+		</legend>
+	</div>
+{% endblock content %}

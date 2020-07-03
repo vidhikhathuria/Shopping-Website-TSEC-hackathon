@@ -47,6 +47,7 @@ class Warehouse(db.Model, UserMixin):
 
 class OrderDetails(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
-	buyer_id = db.Column(db.Integer, nullable=False)
-	seller_id = db.Column(db.Integer, nullable=False)
-	current_warehouse_id = db.Column(db.Integer, db.ForeignKey('warehouse.id'))
+	paymentID = db.Column(db.String, unique=True, nullable=False)
+	address = db.Column(db.String, nullable = False)
+	current_warehouse_id = db.Column(db.Integer, db.ForeignKey('warehouse.id'), default = 0)
+	status = db.Column(db.Integer, nullable=False, default = 0)
