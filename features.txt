@@ -1,0 +1,17 @@
+-Payment Gateway
+-Search
+-Categorize
+-Chatbot
+-QR Code
+-SMS on placing order + updating order
+-Email on placing order + updating order
+-Invoice generation
+-Recommendations
+-Google maps
+-Tracking
+-authorize email
+
+Future scope
+-Translation
+-App
+-Monthly report

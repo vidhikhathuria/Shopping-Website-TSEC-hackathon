@@ -1,11 +1,50 @@
-from flask import render_template, session, request, redirect, flash, url_for
-from track import app, db, bcrypt, csrf
+from flask import render_template, session, request, redirect, flash, url_for, send_from_directory
+from track import app, db, bcrypt, csrf, socket, trackData, client, mail
 from track.forms import WarehouseRegistrationForm, warehouseLoginForm, EmptyForm
 from track.models import Warehouse, OrderDetails
 from flask_login import login_user, current_user, logout_user, login_required
-import cv2
+from flask_socketio import SocketIO, emit, join_room
+from flask_cors import CORS
 import numpy as np
 import pyzbar.pyzbar as pyzbar
+import os, pyqrcode, png, cv2
+from flask_mail import Message
+
+
+
+@socket.on('paymentDetails')
+def payment(data):
+	paymentData = data['data']
+	qrcode = pyqrcode.create(paymentData['paymentID'])
+	qrcode.png('qrcode'+ paymentData['paymentID'] + '.png', scale=15)
+	o = OrderDetails(paymentID = paymentData['paymentID'], address = paymentData['address']['line1'])
+	db.session.add(o)
+	db.session.commit()
+	pid = paymentData['paymentID']
+	o = OrderDetails.query.filter_by(paymentID = pid).first()
+	st = 'Your order with us has been placed. Order id is ' + pid + '. Thanks for shopping with us!'
+	response = client.send_message(
+					{
+					'from' : 'Vonage APIs',
+					'to' : o.number,
+					'text' : st
+					})
+	msg = Message('Order Placed',
+                  sender='anishkhathuria@gmail.com',
+                  recipients=[o.email_id])
+	msg.body = st
+	mail.send(msg)
+	# {'paid': True, 'cancelled': False, 'payerID': '68BAKYT797AX2', 'paymentID': 'PAYID-L4ADKJA9BN96914J6190123S', 'paymentToken': 'EC-73G95573H64136328', 'returnUrl': 'https://www.paypal.com/checkoutnow/error?paymentId=PAYID-L4ADKJA9BN96914J6190123S&token=EC-73G95573H64136328&PayerID=68BAKYT797AX2', 'address': {'recipient_name': 'John Doe', 'line1': 'Flat no. 507 Wing A Raheja Residency', 'line2': 'Film City Road', 'city': 'Mumbai', 'state': 'Maharashtra', 'postal_code': '400097', 'country_code': 'IN'}, 'email': 'sb-n043or2466727@personal.example.com'}
+
+@app.route('/track', methods = ['GET', 'POST'])
+def trackOrder():
+	paymentID = request.args.get('id')
+    # print(paymentID, type(paymentID), paymentID[1:])
+    # return '<h1>The payment id is {}</h1>'.format(paymentID)
+	# print(paymentID)
+	o = OrderDetails.query.filter_by(paymentID = paymentID[1:]).first()
+	w = o.current_warehouse
+	return render_template('track.html', order = o, warehouse = w)
 
 
 
@@ -14,13 +53,7 @@ import pyzbar.pyzbar as pyzbar
 def orders():
 	return render_template('orders.html', title = 'Orders', orders=OrderDetails.query.all())
 
-# @login_required
-# @app.route('/scan/<string:o_id>')
-# def scan(o_id):
-
-# 	
-
-@app.route('/scan/<string:paymentID>', methods=['GET','POST'])
+@app.route('/scan/<string:paymentID>/<int:current_warehouse_id>', methods=['GET','POST'])
 @app.route('/scan')
 @login_required
 def scan(paymentID = None, current_warehouse_id = None):
@@ -48,11 +81,26 @@ def scan(paymentID = None, current_warehouse_id = None):
 			o = OrderDetails.query.filter_by(paymentID = var[2:-1]).first()
 			if o != None:
 				if o.current_warehouse_id == current_user.id:
-					flash('Current warehouse of this order is already yours!', 'warn')
+					flash('Current warehouse of this order is already yours!', 'warning')
 					return redirect(url_for('order_details', paymentID = o.paymentID))
 				else:
 					o.current_warehouse = current_user
-					o.status += 1
+					if o.status == 0:
+						o.status = 1
+					else:
+						o.status += 1
+					st = 'Your order is currently in our warehouse at ' + o.current_warehouse.location + '. Happy Shopping!!\n\n'
+					msg = Message('Current status of your order',
+				                  sender='anishkhathuria@gmail.com',
+				                  recipients=[o.email_id])
+					msg.body = st
+					mail.send(msg)
+					response = client.send_message(
+					{
+					'from' : 'Vonage APIs',
+					'to' : o.number,
+					'text' : st
+					})
 					db.session.commit()
 					flash('Warehouse has been updated!', 'success')
 					return redirect(url_for('order_details', paymentID = o.paymentID))
@@ -82,13 +130,28 @@ def scan(paymentID = None, current_warehouse_id = None):
 		if var != '-1':
 			o = OrderDetails.query.filter_by(paymentID = var[2:-1]).first()
 			if o != None:
-				# print(o.current_warehouse_id, current_user.id)
-				# if o.current_warehouse_id == current_user.id:
-				# 	flash('Current warehouse of this order is already yours!', 'warning')
-				# 	return redirect(url_for('order_details', paymentID = paymentID))
+				if current_warehouse_id == current_user.id:
+					flash('Current warehouse of this order is already yours!', 'warning')
+					return redirect(url_for('order_details', paymentID = paymentID))
 				if paymentID == var[2:-1]:
 					o.current_warehouse = current_user
-					o.status += 1
+					if o.status == 0:
+						o.status = 1
+					else:
+						o.status += 1
+					st = 'Your order is currently in our warehouse at ' + o.current_warehouse.location + '. Happy Shopping!!\n\n'
+					msg = Message('Current status of your order',
+				                  sender='anishkhathuria@gmail.com',
+				                  recipients=[o.email_id])
+					msg.body = st
+					mail.send(msg)
+					response = client.send_message(
+					{
+					'from' : 'Vonage APIs',
+					'to' : o.number,
+					'text' : st
+					})
+
 					db.session.commit()
 					flash('Warehouse has been updated!', 'success')
 					return redirect(url_for('order_details', paymentID = paymentID))
@@ -102,27 +165,13 @@ def scan(paymentID = None, current_warehouse_id = None):
 
 @app.route('/order_details/<string:paymentID>')
 @login_required
-def order_details(paymentID):
+def order_details(paymentID, current_warehouse_id = None):
 	o = OrderDetails.query.filter_by(paymentID = paymentID).first()
-	w = o.current_warehouse
+	if o.current_warehouse_id == 0:
+		w = None
+	else:
+		w = o.current_warehouse
 	return render_template('order_details.html', order = o, warehouse = w)
-
-# @app.route('/order/<int:o_id>/<int:w_id>')
-# @login_required
-# def order(o_id, w_id):
-# 	form = EmptyForm()
-# 	print(type(current_user.id), type(w_id))
-# 	return render_template('order.html', o_id=o_id, w_id=w_id, form=form)
-
-# @app.route('/checkin/<int:o_id>/<int:w_id>', methods=['POST'])
-# @login_required
-# def checkin(o_id, w_id):
-# 	form = EmptyForm()
-# 	if form.validate_on_submit():
-# 		return "working!"
-# 	else:
-# 		return "not working"
-
 
 @app.route('/addwarehouse', methods=['GET', 'POST'])
 def addwarehouse():

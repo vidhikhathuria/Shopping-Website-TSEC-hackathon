@@ -15,7 +15,7 @@
 				    <tr>
 				      <th scope="row">{{ loop.index }}</th>
 				      <td>
-				      <a href="{{ url_for( 'scan', paymentID = i.paymentID, current_warehouse_id = i.current_warehouse_id ) }}">
+				      <a href="{{ url_for( 'order_details', paymentID = i.paymentID, current_warehouse_id = i.current_warehouse_id ) }}">
 				      	{{ i.paymentID }}
 				      </a>
 				  	  </td>

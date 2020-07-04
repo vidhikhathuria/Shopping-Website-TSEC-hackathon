@@ -7,9 +7,6 @@ w3 = Warehouse.query.filter_by(id = 3).first()
 w4 = Warehouse.query.filter_by(id = 4).first()
 o1 = OrderDetails(paymentID = '68BAKYT797AX2', address = 'Flat no. 507 Wing A Raheja Residency', current_warehouse=w2, status=1)
 o2 = OrderDetails(paymentID = '68BAKYT797AX3', address = 'Flat no. 507 Wing A Raheja Residency')
-o1 = OrderDetails(paymentID = '68BAKYT797AX4', address = 'B-604 Anshul Heights Mahavir Nagar', current_warehouse=w4, status=3)
-o1 = OrderDetails(paymentID = '68BAKYT797AX2', address = 'Flat no. 507 Wing A Raheja Residency', current_warehouse=w2, status=1)
-o2 = OrderDetails(paymentID = '68BAKYT797AX3', address = 'Flat no. 507 Wing A Raheja Residency')
 o3 = OrderDetails(paymentID = '68BAKYT797AX4', address = 'B-604 Anshul Heights Mahavir Nagar', current_warehouse=w4, status=3)
 o4 = OrderDetails(paymentID = '68BAKYT797AX5', address = 'B-604 Anshul Heights Mahavir Nagar', status=-1)
 db.session.add(o1)
@@ -21,3 +18,12 @@ db.session.commit()
 db.session.add(o4)
 db.session.commit()
 o = OrderDetails.query.all()
+
+
+
+from track import db
+from track.models import Warehouse, OrderDetails
+o1 = OrderDetails.query.filter_by(paymentID = '68BAKYT797AX2').first()
+o1.current_warehouse_id = 0
+o1.status = 0
+db.session.commit()
