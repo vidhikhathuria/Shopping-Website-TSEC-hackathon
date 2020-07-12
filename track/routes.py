@@ -1,5 +1,5 @@
 from flask import render_template, session, request, redirect, flash, url_for, send_from_directory
-from track import app, db, bcrypt, csrf, socket, trackData, client, mail
+from track import app, db, bcrypt, csrf, socket, trackData, client, mail, cli
 from track.forms import WarehouseRegistrationForm, warehouseLoginForm, EmptyForm
 from track.models import Warehouse, OrderDetails
 from flask_login import login_user, current_user, logout_user, login_required
@@ -7,7 +7,7 @@ from flask_socketio import SocketIO, emit, join_room
 from flask_cors import CORS
 import numpy as np
 import pyzbar.pyzbar as pyzbar
-import os, pyqrcode, png, cv2
+import os, pyqrcode, png, cv2, nexmo
 from flask_mail import Message
 
 
@@ -23,12 +23,33 @@ def payment(data):
 	pid = paymentData['paymentID']
 	o = OrderDetails.query.filter_by(paymentID = pid).first()
 	st = 'Your order with us has been placed. Order id is ' + pid + '. Thanks for shopping with us!'
-	response = client.send_message(
+	response = cli.send_message(
 					{
 					'from' : 'Vonage APIs',
 					'to' : o.number,
 					'text' : st
 					})
+	ncco = [
+			  {
+			    'action': 'talk',
+			    'voiceName': 'Raveena',
+			    'text': 'Hello user. Hope you are having a good day.' + st
+			  }
+			]
+
+
+	response = client.create_call({
+			  'to': [{
+			    'type': 'phone',
+			    'number': '917977753034'
+			  }],
+			  'from': {
+			    'type': 'phone',
+			    'number': '918850481046'
+			  },
+			  'ncco': ncco
+			})
+
 	msg = Message('Order Placed',
                   sender='anishkhathuria@gmail.com',
                   recipients=[o.email_id])
@@ -95,12 +116,33 @@ def scan(paymentID = None, current_warehouse_id = None):
 				                  recipients=[o.email_id])
 					msg.body = st
 					mail.send(msg)
-					response = client.send_message(
+					response = cli.send_message(
 					{
 					'from' : 'Vonage APIs',
 					'to' : o.number,
 					'text' : st
 					})
+					ncco = [
+					  {
+					    'action': 'talk',
+					    'voiceName': 'Raveena',
+					    'text': 'Hello user. Hope you are having a good day. We have updates for your order.' + st 
+					  }
+					]
+
+
+					response = client.create_call({
+					  'to': [{
+					    'type': 'phone',
+					    'number': '917977753034'
+					  }],
+					  'from': {
+					    'type': 'phone',
+					    'number': '918850481046'
+					  },
+					  'ncco': ncco
+					})
+
 					db.session.commit()
 					flash('Warehouse has been updated!', 'success')
 					return redirect(url_for('order_details', paymentID = o.paymentID))
@@ -145,12 +187,32 @@ def scan(paymentID = None, current_warehouse_id = None):
 				                  recipients=[o.email_id])
 					msg.body = st
 					mail.send(msg)
-					response = client.send_message(
+					response = cli.send_message(
 					{
 					'from' : 'Vonage APIs',
 					'to' : o.number,
 					'text' : st
 					})
+					ncco = [
+						  {
+						    'action': 'talk',
+						    'voiceName': 'Raveena',
+						    'text': 'Hello user. Hope you are having a good day. We have updates for your order.' + st 
+						  }
+						]
+
+
+					response = client.create_call({
+						  'to': [{
+						    'type': 'phone',
+						    'number': '917977753034'
+						  }],
+						  'from': {
+						    'type': 'phone',
+						    'number': '918850481046'
+						  },
+						  'ncco': ncco
+						})
 
 					db.session.commit()
 					flash('Warehouse has been updated!', 'success')

@@ -26,7 +26,11 @@ csrf = CSRFProtect(app)
 socket = SocketIO(app,cors_allowed_origins="*")
 CORS(app)
 trackData = ["dummy"]
-client = nexmo.Client(key='62abeb73', secret='9oI2BXGkGdEIPcxG')
+client = nexmo.Client(
+  application_id='e465d03f-f8cf-46f2-9d2d-880bc30995e1',
+  private_key='C:\\Python_Projects\\basic\\private.key',
+)
+cli = nexmo.Client(key='62abeb73', secret= os.environ.get('nexmo_secret'))
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
